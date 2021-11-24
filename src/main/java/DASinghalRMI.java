@@ -6,6 +6,6 @@ public interface DASinghalRMI extends Remote {
 
     public void request() throws RemoteException, NotBoundException;
     public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException;
-    public void receiveToken(Token token) throws RemoteException, NotBoundException;
+    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException;
 
 }

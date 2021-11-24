@@ -19,9 +19,23 @@ public class DASinghal implements DASinghalRMI{
         n_array = new ArrayList<>();
         s_array = new ArrayList<>();
 
+        if (pid == 0) {
+            s_array.set(0, 'H');
+            for (int i=1; i < numberOfProcesses; i++) {
+                s_array.set(i, 'O');
+            }
+        } else {
+            for (int i=0; i<numberOfProcesses; i++){
+                if (i < pid){
+                    s_array.set(i, 'R');
+                } else {
+                    s_array.set(i, 'O');
+                }
+            }
+        }
+
         for (int i=0; i<numberOfProcesses; i++){
             n_array.add(0);
-            s_array.add('O');
         }
 
     }
@@ -67,11 +81,14 @@ public class DASinghal implements DASinghalRMI{
             this.token.setTS(sender_pid, 'R');
             this.token.setTN(sender_pid, sender_request_number);
             // send token to process of sender_pid.
-            sender.receiveToken(this.token);
+            sender.receiveToken(this.pid, this.token);
         }
     }
 
-    public void receiveToken(Token token){
+    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException {
+        Registry registry = LocateRegistry.getRegistry("localhost");
+        DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
+
         s_array.set(pid, 'E');
         // critical section
         s_array.set(pid, 'O');
@@ -96,10 +113,13 @@ public class DASinghal implements DASinghalRMI{
                 check = false;
             }
         }
-        if(!check){
+        if(check){
             s_array.set(pid, 'H');
         } else {
             // send token to some processes.
+            if (s_array.get(sender_pid).equals('H')){
+                sender.receiveToken(this.pid, this.token);
+            }
 
         }
 
