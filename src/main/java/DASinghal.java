@@ -2,10 +2,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DASinghal implements DASinghalRMI{
     private int pid;
@@ -13,6 +11,7 @@ public class DASinghal implements DASinghalRMI{
     private List<Character> s_array;
     private int numberOfProcesses;
     private Token token= null;
+    private int cs_time;
 
     public DASinghal(int pid, int numberOfProcesses){
         this.pid = pid;
@@ -38,9 +37,11 @@ public class DASinghal implements DASinghalRMI{
             n_array.add(0);
         }
 
+        cs_time = ThreadLocalRandom.current().nextInt(1, 5 + 1);
+
     }
 
-    public void request() throws RemoteException, NotBoundException{
+    public void request() throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
 
@@ -60,7 +61,7 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-    public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException {
+    public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
@@ -86,12 +87,14 @@ public class DASinghal implements DASinghalRMI{
         }
     }
 
-    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException {
+    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
         s_array.set(pid, 'E');
         // critical section
+        this.execute_cs();
+
         s_array.set(pid, 'O');
         this.token.setTS(pid, 'O');
 
@@ -130,6 +133,14 @@ public class DASinghal implements DASinghalRMI{
 
     public void setToken(Token token){
         this.token = token;
+    }
+
+
+    public void execute_cs() throws InterruptedException {
+        if (cs_time != 0){
+            Thread.sleep(cs_time * 1000);
+        }
+
     }
 
 }
