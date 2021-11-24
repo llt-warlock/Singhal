@@ -23,7 +23,7 @@ public class DASinghalMain {
         for (int i=0; i<numberOfProcesses; i++){
             DASinghalRMI stub = new DASinghal(i, numberOfProcesses);
             registry.bind("Singhal_"+i, stub);
-//            System.out.println(stub.getS_array());
+            System.out.println(((DASinghal) stub).getS_array());
         }
 
         registry = LocateRegistry.getRegistry("localhost");

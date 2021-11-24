@@ -2,10 +2,11 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DASinghal implements DASinghalRMI{
+public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
     private int pid;
     private List<Integer> n_array;
     private List<Character> s_array;
@@ -13,17 +14,19 @@ public class DASinghal implements DASinghalRMI{
     private Token token= null;
     private int cs_time;
 
-    public DASinghal(int pid, int numberOfProcesses){
+    public DASinghal(int pid, int numberOfProcesses) throws RemoteException{
         this.numberOfProcesses = numberOfProcesses;
         this.pid = pid;
         n_array = new ArrayList<>();
         s_array = new ArrayList<>();
+
 
         if (pid == 0) {
             s_array.add('H');
             for (int i=1; i < this.numberOfProcesses; i++) {
                 s_array.add('O');
             }
+            token = new Token(this.numberOfProcesses);
         } else {
             for (int i=0; i<this.numberOfProcesses; i++){
                 if (i < pid){
@@ -116,6 +119,7 @@ public class DASinghal implements DASinghalRMI{
         for (int i=0; i<s_array.size(); i++){
             if (s_array.get(i) != 'O'){
                 check = false;
+                break;
             }
         }
         if(check){
@@ -142,6 +146,14 @@ public class DASinghal implements DASinghalRMI{
             Thread.sleep(cs_time * 1000);
         }
 
+    }
+
+    public List<Integer> getN_array() {
+        return this.n_array;
+    }
+
+    public List<Character> getS_array() {
+        return this.s_array;
     }
 
 }
