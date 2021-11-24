@@ -2,19 +2,21 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DASinghal implements DASinghalRMI{
+public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
     private int pid;
     private List<Integer> n_array;
     private List<Character> s_array;
     private int numberOfProcesses;
     private Token token= null;
 
-    public DASinghal(int pid, int numberOfProcesses){
+    public DASinghal(int pid, int numberOfProcesses) throws RemoteException{
+        this.numberOfProcesses = numberOfProcesses;
         this.pid = pid;
         n_array = new ArrayList<>();
         s_array = new ArrayList<>();
@@ -48,7 +50,7 @@ public class DASinghal implements DASinghalRMI{
         int temp = n_array.get(pid);
         n_array.set(pid, temp+1);
 
-        for (int i=0; i < numberOfProcesses; i++){
+        for (int i=0; i < this.numberOfProcesses; i++){
             if (i != pid){
                 sender = (DASinghalRMI) registry.lookup("Singhal_" + i);
                 if (s_array.get(i).equals('R')){
@@ -95,7 +97,7 @@ public class DASinghal implements DASinghalRMI{
         s_array.set(pid, 'O');
         this.token.setTS(pid, 'O');
 
-        for (int i=0; i<numberOfProcesses; i++){
+        for (int i=0; i<this.numberOfProcesses; i++){
             if (i != pid){
                 if (n_array.get(i) > this.token.getTN().get(i)){
                     this.token.setTN(i, n_array.get(i));

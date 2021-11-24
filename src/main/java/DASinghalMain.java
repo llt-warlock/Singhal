@@ -21,9 +21,9 @@ public class DASinghalMain {
     public static void creatingProcesses(int numberOfProcesses) throws RemoteException, AlreadyBoundException, NotBoundException {
         registry = LocateRegistry.getRegistry();
         for (int i=0; i<numberOfProcesses; i++){
-            DASinghal stub = new DASinghal(i, numberOfProcesses);
+            DASinghalRMI stub = new DASinghal(i, numberOfProcesses);
             registry.bind("Singhal_"+i, stub);
-            System.out.println(stub.getS_array());
+//            System.out.println(stub.getS_array());
         }
 
         registry = LocateRegistry.getRegistry("localhost");
