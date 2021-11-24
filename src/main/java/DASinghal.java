@@ -82,6 +82,7 @@ public class DASinghal implements DASinghalRMI{
             this.token.setTN(sender_pid, sender_request_number);
             // send token to process of sender_pid.
             sender.receiveToken(this.pid, this.token);
+            this.token = null;
         }
     }
 
@@ -119,6 +120,7 @@ public class DASinghal implements DASinghalRMI{
             // send token to some processes.
             if (s_array.get(sender_pid).equals('R')){
                 sender.receiveToken(this.pid, this.token);
+                this.token = null;
             }
 
         }
