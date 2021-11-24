@@ -117,7 +117,7 @@ public class DASinghal implements DASinghalRMI{
             s_array.set(pid, 'H');
         } else {
             // send token to some processes.
-            if (s_array.get(sender_pid).equals('H')){
+            if (s_array.get(sender_pid).equals('R')){
                 sender.receiveToken(this.pid, this.token);
             }
 
