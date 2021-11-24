@@ -11,8 +11,8 @@ public class Token {
         TN = new ArrayList<>();
         TS = new ArrayList<>();
         for (int i=0; i < numberOfProcesses; i++){
-            TN.set(i, 0);
-            TS.set(i, 'O');
+            TN.add(0);
+            TS.add('O');
         }
     }
 
