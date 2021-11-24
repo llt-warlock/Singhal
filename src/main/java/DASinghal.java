@@ -14,17 +14,18 @@ public class DASinghal implements DASinghalRMI{
     private int cs_time;
 
     public DASinghal(int pid, int numberOfProcesses){
+        this.numberOfProcesses = numberOfProcesses;
         this.pid = pid;
         n_array = new ArrayList<>();
         s_array = new ArrayList<>();
 
         if (pid == 0) {
             s_array.add('H');
-            for (int i=1; i < numberOfProcesses; i++) {
+            for (int i=1; i < this.numberOfProcesses; i++) {
                 s_array.add('O');
             }
         } else {
-            for (int i=0; i<numberOfProcesses; i++){
+            for (int i=0; i<this.numberOfProcesses; i++){
                 if (i < pid){
                     s_array.add('R');
                 } else {
@@ -33,7 +34,7 @@ public class DASinghal implements DASinghalRMI{
             }
         }
 
-        for (int i=0; i<numberOfProcesses; i++){
+        for (int i=0; i<this.numberOfProcesses; i++){
             n_array.add(0);
         }
 
@@ -49,7 +50,7 @@ public class DASinghal implements DASinghalRMI{
         int temp = n_array.get(pid);
         n_array.set(pid, temp+1);
 
-        for (int i=0; i < numberOfProcesses; i++){
+        for (int i=0; i < this.numberOfProcesses; i++){
             if (i != pid){
                 sender = (DASinghalRMI) registry.lookup("Singhal_" + i);
                 if (s_array.get(i).equals('R')){
@@ -98,7 +99,7 @@ public class DASinghal implements DASinghalRMI{
         s_array.set(pid, 'O');
         this.token.setTS(pid, 'O');
 
-        for (int i=0; i<numberOfProcesses; i++){
+        for (int i=0; i<this.numberOfProcesses; i++){
             if (i != pid){
                 if (n_array.get(i) > this.token.getTN().get(i)){
                     this.token.setTN(i, n_array.get(i));
