@@ -20,16 +20,16 @@ public class DASinghal implements DASinghalRMI{
         s_array = new ArrayList<>();
 
         if (pid == 0) {
-            s_array.set(0, 'H');
+            s_array.add('H');
             for (int i=1; i < numberOfProcesses; i++) {
-                s_array.set(i, 'O');
+                s_array.add('O');
             }
         } else {
             for (int i=0; i<numberOfProcesses; i++){
                 if (i < pid){
-                    s_array.set(i, 'R');
+                    s_array.add('R');
                 } else {
-                    s_array.set(i, 'O');
+                    s_array.add( 'O');
                 }
             }
         }
