@@ -41,7 +41,7 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-    public void request() throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void request() throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
 
@@ -61,7 +61,7 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-    public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
@@ -87,13 +87,13 @@ public class DASinghal implements DASinghalRMI{
         }
     }
 
-    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
         s_array.set(pid, 'E');
         // critical section
-        this.execute_cs();
+        this.execute_cs(this.cs_time);
 
         s_array.set(pid, 'O');
         this.token.setTS(pid, 'O');
@@ -131,16 +131,13 @@ public class DASinghal implements DASinghalRMI{
     }
 
 
-    public void setToken(Token token){
+    synchronized public void setToken(Token token){
         this.token = token;
     }
 
 
-    public void execute_cs() throws InterruptedException {
-        if (cs_time != 0){
-            Thread.sleep(cs_time * 1000);
-        }
-
+    synchronized public void execute_cs(int cs_time) throws InterruptedException {
+        new Thread(new MyRunnable(cs_time)).start();
     }
 
 }
