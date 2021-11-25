@@ -39,11 +39,11 @@ public class DASinghalMain {
         System.out.println("Process 1 States:" + " " + process_1.getS_array());
         System.out.println("Process 2 States:" + " " + process_2.getS_array());
         System.out.println("Token States in process 2:" + " " + process_2.getToken().getTS());
-        process_1.request();
-        System.out.println("Process 1 generate a request:");
-        System.out.println("Process 0 States:" + " " + process_0.getS_array());
-        System.out.println("Process 1 States:" + " " + process_1.getS_array());
-        System.out.println("Process 2 States:" + " " + process_2.getS_array());
-        System.out.println("Token States in process 1:" + " " + process_1.getToken().getTS());
+//        process_1.request();
+//        System.out.println("Process 1 generate a request:");
+//        System.out.println("Process 0 States:" + " " + process_0.getS_array());
+//        System.out.println("Process 1 States:" + " " + process_1.getS_array());
+//        System.out.println("Process 2 States:" + " " + process_2.getS_array());
+//        System.out.println("Token States in process 1:" + " " + process_1.getToken().getTS());
     }
 }

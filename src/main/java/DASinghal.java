@@ -39,7 +39,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
             n_array.add(0);
         }
 
-        cs_time = ThreadLocalRandom.current().nextInt(1, 5 + 1);
+        this.cs_time = ThreadLocalRandom.current().nextInt(1, 5 + 1);
 
     }
     public List<Character> copyS_array(){
@@ -51,7 +51,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
 
     }
 
-    public void request() throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void request() throws RemoteException, NotBoundException, InterruptedException {
 
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
@@ -75,11 +75,9 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
             }
 
         }
-
-
     }
 
-    public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 //        System.out.println("s_array1:"+s_array);
@@ -108,7 +106,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         }
     }
 
-    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
+    synchronized public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
 //        System.out.println("2222:"+token.getTS());
 
         Registry registry = LocateRegistry.getRegistry("localhost");
@@ -117,8 +115,9 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         s_array.set(this.pid, 'E');
 //        System.out.println("1111:"+s_array);
         // critical section
-        this.execute_cs();
-
+        System.out.println("aaaaaa");
+        this.execute_cs(this.cs_time);
+        System.out.println("bbbb");
         s_array.set(this.pid, 'O');
 //        System.out.println("TOKEN:"+ token.getTS());
         token.setTS(this.pid, 'O');
@@ -161,7 +160,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
     }
 
 
-    public void setToken(Token token){
+    synchronized public void setToken(Token token){
         this.token = token;
     }
 
@@ -169,11 +168,8 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         return this.token;
     }
 
-    public void execute_cs() throws InterruptedException {
-        if (cs_time != 0){
-            Thread.sleep(cs_time * 1000);
-        }
-
+    synchronized public void execute_cs(int cs_time) throws InterruptedException {
+        new Thread(new MyRunnable(cs_time)).start();
     }
 
     public List<Integer> getN_array() {
