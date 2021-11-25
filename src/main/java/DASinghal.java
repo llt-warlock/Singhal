@@ -117,7 +117,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         s_array.set(this.pid, 'E');
 //        System.out.println("1111:"+s_array);
         // critical section
-//        this.execute_cs();
+        this.execute_cs();
 
         s_array.set(this.pid, 'O');
 //        System.out.println("TOKEN:"+ token.getTS());
