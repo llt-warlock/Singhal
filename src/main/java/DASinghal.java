@@ -41,7 +41,7 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-    synchronized public void request() throws RemoteException, NotBoundException, InterruptedException {
+    public void request() throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
 
@@ -61,7 +61,7 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-    synchronized public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
+    public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
@@ -82,18 +82,24 @@ public class DASinghal implements DASinghalRMI{
             this.token.setTS(sender_pid, 'R');
             this.token.setTN(sender_pid, sender_request_number);
             // send token to process of sender_pid.
+
+            // release token
+
             sender.receiveToken(this.pid, this.token);
             this.token = null;
         }
     }
 
-    synchronized public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
+    public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
         s_array.set(pid, 'E');
         // critical section
-        this.execute_cs(this.cs_time);
+
+        execute_cs(pid);
+
+
 
         s_array.set(pid, 'O');
         this.token.setTS(pid, 'O');
@@ -130,14 +136,15 @@ public class DASinghal implements DASinghalRMI{
 
     }
 
-
-    synchronized public void setToken(Token token){
+    public void setToken(Token token){
         this.token = token;
     }
 
 
     synchronized public void execute_cs(int cs_time) throws InterruptedException {
-        new Thread(new MyRunnable(cs_time)).start();
+        if (cs_time != 0){
+            Thread.sleep(cs_time * 1000);
+        }
     }
 
 }
