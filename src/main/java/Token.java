@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Token {
+public class Token implements Serializable {
     private int numberOfProcesses;
     private List<Integer> TN;
     private List<Character> TS;
@@ -11,8 +12,8 @@ public class Token {
         TN = new ArrayList<>();
         TS = new ArrayList<>();
         for (int i=0; i < numberOfProcesses; i++){
-            TN.set(i, 0);
-            TS.set(i, 'O');
+            TN.add(0);
+            TS.add('O');
         }
     }
 
