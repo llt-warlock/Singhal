@@ -10,8 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runnable{
     private int pid;
-    Lock n_array_lock = new ReentrantLock();
-    Lock s_array_lock = new ReentrantLock();
+    Lock lock = new ReentrantLock();
     private List<Integer> n_array;
     private List<Character> s_array;
     private int numberOfProcesses;
@@ -60,8 +59,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
         List<Character> copy = copyS_array();
-        s_array_lock.lock();
-        n_array_lock.lock();
+        lock.lock();
 
         s_array.set(this.pid, 'R');
         int temp = n_array.get(pid);
@@ -83,8 +81,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
             }
 
         }
-        n_array_lock.unlock();
-        s_array_lock.unlock();
+        lock.unlock();
     }
 
     public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
@@ -92,8 +89,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 //        System.out.println("s_array1:"+s_array);
 
-        s_array_lock.lock();
-        n_array_lock.lock();
+        lock.lock();
 
 
         n_array.set(sender_pid, sender_request_number);
@@ -119,8 +115,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
             this.token = null;
         }
 
-        n_array_lock.unlock();
-        s_array_lock.unlock();
+        lock.unlock();
 
     }
 
@@ -130,8 +125,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
-        s_array_lock.lock();
-        n_array_lock.lock();
+        lock.lock();
 
 
         s_array.set(this.pid, 'E');
@@ -180,14 +174,15 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
 //        System.out.println("final"+s_array);
         setToken(token);
 
-        n_array_lock.unlock();
-        s_array_lock.unlock();
+        lock.unlock();
 
     }
 
 
     public void setToken(Token token){
+        lock.lock();
         this.token = token;
+        lock.unlock();
     }
 
     public Token getToken() {
