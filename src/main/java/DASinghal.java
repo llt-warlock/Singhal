@@ -192,6 +192,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
         lock_n.lock();
         lock_t.lock();
 
+
     }
 
 
