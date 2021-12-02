@@ -5,9 +5,13 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
+public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runnable{
     private int pid;
+    Lock n_array_lock = new ReentrantLock();
+    Lock s_array_lock = new ReentrantLock();
     private List<Integer> n_array;
     private List<Character> s_array;
     private int numberOfProcesses;
@@ -56,9 +60,13 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
         List<Character> copy = copyS_array();
+        s_array_lock.lock();
+        n_array_lock.lock();
+
         s_array.set(this.pid, 'R');
         int temp = n_array.get(pid);
         n_array.set(this.pid, temp+1);
+
 
         for (int i=0; i < this.numberOfProcesses; i++){
             if (i != this.pid){
@@ -75,12 +83,18 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
             }
 
         }
+        n_array_lock.unlock();
+        s_array_lock.unlock();
     }
 
     public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 //        System.out.println("s_array1:"+s_array);
+
+        s_array_lock.lock();
+        n_array_lock.lock();
+
 
         n_array.set(sender_pid, sender_request_number);
 
@@ -104,6 +118,10 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
             sender.receiveToken(this.pid, this.token);
             this.token = null;
         }
+
+        n_array_lock.unlock();
+        s_array_lock.unlock();
+
     }
 
     public void receiveToken(int sender_pid, Token token) throws RemoteException, NotBoundException, InterruptedException {
@@ -111,6 +129,10 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
 
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
+
+        s_array_lock.lock();
+        n_array_lock.lock();
+
 
         s_array.set(this.pid, 'E');
 //        System.out.println("1111:"+s_array);
@@ -157,6 +179,10 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
 //        System.out.println("11111"+token.getTS());
 //        System.out.println("final"+s_array);
         setToken(token);
+
+        n_array_lock.unlock();
+        s_array_lock.unlock();
+
     }
 
 
@@ -182,4 +208,16 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI{
         return s_array;
     }
 
+    @Override
+    public void run() {
+        try {
+            this.request();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

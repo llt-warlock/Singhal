@@ -45,5 +45,15 @@ public class DASinghalMain {
 //        System.out.println("Process 1 States:" + " " + process_1.getS_array());
 //        System.out.println("Process 2 States:" + " " + process_2.getS_array());
 //        System.out.println("Token States in process 1:" + " " + process_1.getToken().getTS());
+
+        Thread t0 = new Thread(new MyRunnable(process_0));
+        Thread t1 = new Thread(new MyRunnable(process_1));
+        Thread t2 = new Thread(new MyRunnable(process_2));
+
+
+        t1.start();
+        t2.start();
+
+
     }
 }
