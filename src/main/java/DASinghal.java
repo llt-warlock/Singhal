@@ -10,10 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runnable{
     private int pid;
-    Lock lock_c = new ReentrantLock();
-    Lock lock_t = new ReentrantLock();
-    Lock lock_n = new ReentrantLock();
-    Lock lock_s = new ReentrantLock();
     private List<Integer> n_array;
     private List<Character> s_array;
     private int numberOfProcesses;
@@ -61,13 +57,12 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
 
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender;
-        lock_c.lock();
+
         List<Character> copy = copyS_array();
 
-        lock_s.lock();
+
         s_array.set(this.pid, 'R');
 
-        lock_n.lock();
         int temp = n_array.get(pid);
         n_array.set(this.pid, temp+1);
 
@@ -88,9 +83,6 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
             }
 
         }
-        lock_c.unlock();
-        lock_n.unlock();
-        lock_s.unlock();
     }
 
     public void receiveRequest(int sender_pid, int sender_request_number) throws RemoteException, NotBoundException, InterruptedException {
@@ -99,9 +91,6 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
 //        System.out.println("s_array1:"+s_array);
 
 
-        lock_n.lock();
-        lock_s.lock();
-        lock_t.lock();
 
         n_array.set(sender_pid, sender_request_number);
 
@@ -126,9 +115,6 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
             this.token = null;
         }
 
-        lock_t.unlock();
-        lock_s.unlock();
-        lock_n.unlock();
 
     }
 
@@ -138,9 +124,6 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
         Registry registry = LocateRegistry.getRegistry("localhost");
         DASinghalRMI sender = (DASinghalRMI) registry.lookup("Singhal_" + sender_pid);
 
-        lock_s.lock();
-        lock_n.lock();
-        lock_t.lock();
 
         s_array.set(this.pid, 'E');
 //        System.out.println("1111:"+s_array);
@@ -188,9 +171,7 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
 //        System.out.println("final"+s_array);
         setToken(token);
 
-        lock_s.lock();
-        lock_n.lock();
-        lock_t.lock();
+
 
 
     }
@@ -205,9 +186,11 @@ public class DASinghal extends UnicastRemoteObject implements DASinghalRMI, Runn
     }
 
     public void execute_cs(int cs_time) throws InterruptedException {
+        Thread temp = new Thread(new MyRunnableCS(cs_time));
         if (cs_time != 0){
-            Thread.sleep(cs_time * 1000);
+            temp.start();
         }
+        temp.join();
     }
 
     public List<Integer> getN_array() {
